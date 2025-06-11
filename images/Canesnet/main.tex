@@ -1,0 +1,415 @@
+
+\documentclass[border=8pt, multi, tikz]{standalone} 
+\usepackage{import}
+\subimport{../layers/}{init}
+\usetikzlibrary{positioning}
+\usetikzlibrary{3d} %for including external image 
+
+\def\ConvColor{rgb:yellow,5;red,2.5;white,5}
+\def\ConvReluColor{rgb:yellow,5;red,5;white,5}
+\def\PoolColor{rgb:red,1;black,0.3}
+\def\UnpoolColor{rgb:blue,2;green,1;black,0.3}
+\def\FcColor{rgb:blue,5;red,2.5;white,5}
+\def\FcReluColor{rgb:blue,5;red,5;white,4}
+\def\SoftmaxColor{rgb:magenta,5;black,7}   
+\def\SumColor{rgb:blue,5;green,15}
+
+\newcommand{\copymidarrow}{\tikz \draw[-Stealth,line width=0.8mm,draw={rgb:blue,4;red,1;green,1;black,3}] (-0.3,0) -- ++(0.3,0);}
+
+\begin{document}
+\begin{tikzpicture}
+\tikzstyle{connection}=[ultra thick,every node/.style={sloped,allow upside down},draw=\edgecolor,opacity=0.7]
+\tikzstyle{copyconnection}=[ultra thick,every node/.style={sloped,allow upside down},draw={rgb:blue,4;red,1;green,1;black,3},opacity=0.7]
+
+\pic[shift={(15,8,0)}] at (0,8,0) 
+    {Box={
+        name=trans3,
+        caption=Transformer\\Block 3,
+        xlabel={{256, }},
+        zlabel=128,
+        fill=\ConvColor,
+        height=12,
+        width=3,
+        depth=12
+        }
+    };
+
+\pic[shift={(8,0,0)}] at (trans3-east) 
+    {Box={
+        name=trans4,
+        caption=Transformer\\Block 4,
+        xlabel={{512, }},
+        zlabel=64,
+        fill=\ConvColor,
+        height=6,
+        width=4,
+        depth=6
+        }
+    };
+
+\pic[shift={(3,4,0)}] at (0,4,0) 
+    {Box={
+        name=fusion1,
+        caption=Fusion\\Module 1,
+        xlabel={{64, }},
+        zlabel=512,
+        fill=\ConvColor,
+        height=32,
+        width=1.5,
+        depth=32
+        }
+    };
+
+\pic[shift={(8,0,0)}] at (fusion1-east) 
+    {Box={
+        name=fusion2,
+        caption=Fusion\\Module 2,
+        xlabel={{128, }},
+        zlabel=256,
+        fill=\ConvColor,
+        height=16,
+        width=1.8,
+        depth=16
+        }
+    };
+
+\pic[shift={(8,0,0)}] at (fusion2-east) 
+    {Box={
+        name=fusion3,
+        caption=Fusion\\Module 3,
+        xlabel={{256, }},
+        zlabel=128,
+        fill=\ConvColor,
+        height=8,
+        width=2.2,
+        depth=8
+        }
+    };
+
+\pic[shift={(8,0,0)}] at (fusion3-east) 
+    {Box={
+        name=fusion4,
+        caption=Fusion\\Module 4,
+        xlabel={{512, }},
+        zlabel=64,
+        fill=\ConvColor,
+        height=4,
+        width=2.8,
+        depth=4
+        }
+    };
+
+\pic[shift={(0,0,0)}] at (0,0,0) 
+    {Box={
+        name=input,
+        caption=Input\\3ch,
+        xlabel={{3, }},
+        zlabel=512,
+        fill=\ConvColor,
+        height=64,
+        width=1,
+        depth=64
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (input-east) 
+    {Box={
+        name=enc1,
+        caption=Encoder\\64,
+        xlabel={{64, }},
+        zlabel=512,
+        fill=\ConvColor,
+        height=64,
+        width=2,
+        depth=64
+        }
+    };
+
+\pic[shift={ (3,0,0) }] at (enc1-east) 
+    {Box={
+        name=pool1,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=32,
+        width=1,
+        depth=32
+        }
+    };
+
+\pic[shift={(3,0,0)}] at (pool1-east) 
+    {Box={
+        name=enc2,
+        caption=Encoder\\128,
+        xlabel={{128, }},
+        zlabel=256,
+        fill=\ConvColor,
+        height=32,
+        width=2.5,
+        depth=32
+        }
+    };
+
+\pic[shift={ (3,0,0) }] at (enc2-east) 
+    {Box={
+        name=pool2,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=16,
+        width=1,
+        depth=16
+        }
+    };
+
+\pic[shift={(3,0,0)}] at (pool2-east) 
+    {Box={
+        name=enc3,
+        caption=Encoder\\256,
+        xlabel={{256, }},
+        zlabel=128,
+        fill=\ConvColor,
+        height=16,
+        width=3,
+        depth=16
+        }
+    };
+
+\pic[shift={ (3,0,0) }] at (enc3-east) 
+    {Box={
+        name=pool3,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=8,
+        width=1,
+        depth=8
+        }
+    };
+
+\pic[shift={(3,0,0)}] at (pool3-east) 
+    {Box={
+        name=enc4,
+        caption=Encoder\\512,
+        xlabel={{512, }},
+        zlabel=64,
+        fill=\ConvColor,
+        height=8,
+        width=4,
+        depth=8
+        }
+    };
+
+\pic[shift={ (3,0,0) }] at (enc4-east) 
+    {Box={
+        name=pool4,
+        caption= ,
+        fill=\PoolColor,
+        opacity=0.5,
+        height=4,
+        width=1,
+        depth=4
+        }
+    };
+
+\pic[shift={(3,0,0)}] at (pool4-east) 
+    {Box={
+        name=bottleneck,
+        caption=Bottleneck\\1024,
+        xlabel={{1024, }},
+        zlabel=32,
+        fill=\ConvColor,
+        height=4,
+        width=5,
+        depth=4
+        }
+    };
+
+\pic[shift={(0,0,3)}] at (bottleneck-near) 
+    {Box={
+        name=aspp,
+        caption=ASPP\\Multi-Scale,
+        xlabel={{1024, }},
+        zlabel=32,
+        fill=\ConvColor,
+        height=4,
+        width=5,
+        depth=4
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (aspp-east) 
+    {Box={
+        name=dec4,
+        caption=Decoder\\512,
+        xlabel={{512, }},
+        zlabel=64,
+        fill=\ConvColor,
+        height=8,
+        width=4,
+        depth=8
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (dec4-east) 
+    {Box={
+        name=dec3,
+        caption=Decoder\\256,
+        xlabel={{256, }},
+        zlabel=128,
+        fill=\ConvColor,
+        height=16,
+        width=3,
+        depth=16
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (dec3-east) 
+    {Box={
+        name=dec2,
+        caption=Decoder\\128,
+        xlabel={{128, }},
+        zlabel=256,
+        fill=\ConvColor,
+        height=32,
+        width=2.5,
+        depth=32
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (dec2-east) 
+    {Box={
+        name=dec1,
+        caption=Decoder\\64,
+        xlabel={{64, }},
+        zlabel=512,
+        fill=\ConvColor,
+        height=64,
+        width=2,
+        depth=64
+        }
+    };
+
+\pic[shift={(4,0,0)}] at (dec1-east) 
+    {Box={
+        name=output,
+        caption=Output\\3ch,
+        xlabel={{3, }},
+        zlabel=512,
+        fill=\ConvColor,
+        height=64,
+        width=1,
+        depth=64
+        }
+    };
+
+\pic[shift={(7,-8,0)}] at (0,-8,0) 
+    {Box={
+        name=mamba1,
+        caption=Mamba\\Block 1,
+        xlabel={{64, }},
+        zlabel=512,
+        fill=\ConvColor,
+        height=48,
+        width=2,
+        depth=48
+        }
+    };
+
+\pic[shift={(8,0,0)}] at (mamba1-east) 
+    {Box={
+        name=mamba2,
+        caption=Mamba\\Block 2,
+        xlabel={{128, }},
+        zlabel=256,
+        fill=\ConvColor,
+        height=24,
+        width=2.5,
+        depth=24
+        }
+    };
+
+\draw [connection]  (input-east)    -- node {\midarrow} (enc1-west);
+
+\draw [connection]  (enc1-east)    -- node {\midarrow} (pool1-west);
+
+\draw [connection]  (pool1-east)    -- node {\midarrow} (enc2-west);
+
+\draw [connection]  (enc2-east)    -- node {\midarrow} (pool2-west);
+
+\draw [connection]  (pool2-east)    -- node {\midarrow} (enc3-west);
+
+\draw [connection]  (enc3-east)    -- node {\midarrow} (pool3-west);
+
+\draw [connection]  (pool3-east)    -- node {\midarrow} (enc4-west);
+
+\draw [connection]  (enc4-east)    -- node {\midarrow} (pool4-west);
+
+\draw [connection]  (pool4-east)    -- node {\midarrow} (bottleneck-west);
+
+\draw [connection]  (bottleneck-east)    -- node {\midarrow} (aspp-west);
+
+\draw [connection]  (aspp-east)    -- node {\midarrow} (dec4-west);
+
+\draw [connection]  (dec4-east)    -- node {\midarrow} (dec3-west);
+
+\draw [connection]  (dec3-east)    -- node {\midarrow} (dec2-west);
+
+\draw [connection]  (dec2-east)    -- node {\midarrow} (dec1-west);
+
+\draw [connection]  (dec1-east)    -- node {\midarrow} (output-west);
+
+\draw [connection]  (enc1-east)    -- node {\midarrow} (mamba1-west);
+
+\draw [connection]  (enc2-east)    -- node {\midarrow} (mamba2-west);
+
+\draw [connection]  (enc3-east)    -- node {\midarrow} (trans3-west);
+
+\draw [connection]  (enc4-east)    -- node {\midarrow} (trans4-west);
+
+\draw [connection]  (mamba1-east)    -- node {\midarrow} (fusion1-west);
+
+\draw [connection]  (mamba2-east)    -- node {\midarrow} (fusion2-west);
+
+\draw [connection]  (trans3-east)    -- node {\midarrow} (fusion3-west);
+
+\draw [connection]  (trans4-east)    -- node {\midarrow} (fusion4-west);
+
+\draw [connection]  (fusion1-east)    -- node {\midarrow} (dec1-west);
+
+\draw [connection]  (fusion2-east)    -- node {\midarrow} (dec2-west);
+
+\draw [connection]  (fusion3-east)    -- node {\midarrow} (dec3-west);
+
+\draw [connection]  (fusion4-east)    -- node {\midarrow} (dec4-west);
+
+\path (fusion4-southeast) -- (fusion4-northeast) coordinate[pos=1.25] (fusion4-top) ;
+\path (dec4-south)  -- (dec4-north)  coordinate[pos=1.25] (dec4-top) ;
+\draw [copyconnection]  (fusion4-northeast)  
+-- node {\copymidarrow}(fusion4-top)
+-- node {\copymidarrow}(dec4-top)
+-- node {\copymidarrow} (dec4-north);
+
+\path (fusion3-southeast) -- (fusion3-northeast) coordinate[pos=1.25] (fusion3-top) ;
+\path (dec3-south)  -- (dec3-north)  coordinate[pos=1.25] (dec3-top) ;
+\draw [copyconnection]  (fusion3-northeast)  
+-- node {\copymidarrow}(fusion3-top)
+-- node {\copymidarrow}(dec3-top)
+-- node {\copymidarrow} (dec3-north);
+
+\path (fusion2-southeast) -- (fusion2-northeast) coordinate[pos=1.25] (fusion2-top) ;
+\path (dec2-south)  -- (dec2-north)  coordinate[pos=1.25] (dec2-top) ;
+\draw [copyconnection]  (fusion2-northeast)  
+-- node {\copymidarrow}(fusion2-top)
+-- node {\copymidarrow}(dec2-top)
+-- node {\copymidarrow} (dec2-north);
+
+\path (fusion1-southeast) -- (fusion1-northeast) coordinate[pos=1.25] (fusion1-top) ;
+\path (dec1-south)  -- (dec1-north)  coordinate[pos=1.25] (dec1-top) ;
+\draw [copyconnection]  (fusion1-northeast)  
+-- node {\copymidarrow}(fusion1-top)
+-- node {\copymidarrow}(dec1-top)
+-- node {\copymidarrow} (dec1-north);
+
+\end{tikzpicture}
+\end{document}
